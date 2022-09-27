@@ -28,4 +28,10 @@ class InventoryItem(
         result = 31 * result + numberAvailable
         return result
     }
+
+    override fun toString(): String {
+        return "InventoryItem(id=$id, name='$name', unitPriceInCents=$unitPriceInCents, numberAvailable=$numberAvailable)"
+    }
+
+
 }

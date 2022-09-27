@@ -5,6 +5,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.0.14.RELEASE"
 	kotlin("jvm") version "1.7.10"
 	kotlin("plugin.spring") version "1.7.10"
+	id("org.jetbrains.kotlin.plugin.noarg") version "1.7.10"
 }
 
 group = "com.amex.interview"
@@ -15,6 +16,10 @@ repositories {
 	mavenCentral()
 	maven { url = uri("https://repo.spring.io/milestone") }
 	maven { url = uri("https://repo.spring.io/snapshot") }
+}
+
+noArg {
+	annotation("com.amex.interview.annotations.NoArgConstructor")
 }
 
 dependencies {

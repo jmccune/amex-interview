@@ -9,12 +9,27 @@ import java.util.*
 
 @Service
 class OrderService(val inventoryService: InventoryService,
-                   val priceAdjustmentService: PriceAdjustmentService) {
+                   val priceAdjustmentService: PriceAdjustmentService,
+                   val orderRepository: OrderStore
+) {
 
+    // Might be denoted transactional if using a RDBMS... or have other transactional management
+    // within...
     fun createUserOrder(userOrder: UserOrder): OrderSummary {
         val orderSummary=createUserOrderWithoutDeals(userOrder)
-        return priceAdjustmentService.applyCurrentDeals(orderSummary)
+        val finalOrderSummary =priceAdjustmentService.applyCurrentDeals(orderSummary)
+        orderRepository.save(finalOrderSummary)
+        return finalOrderSummary
     }
+
+    fun getUserOrderByUUID(uuid:UUID) = orderRepository.findById(uuid)
+
+
+    // An unconstrained invocation isn't the best practice...
+    // Normally we would constrain this somehow
+    // (paging, a time-window, a LRU store that ejects oldest entries, etc.)
+    fun getAllOrders() = orderRepository.findAll()
+
 
     private fun createUserOrderWithoutDeals(userOrder: UserOrder): OrderSummary {
         if (userOrder.orderedItems.isEmpty()) {

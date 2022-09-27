@@ -8,12 +8,14 @@ import com.amex.interview.model.UserOrder
 import com.amex.interview.util.TestHelper.Companion.myAny
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anySet
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.doAnswer
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.springframework.boot.test.context.SpringBootTest
 import java.util.*
@@ -26,6 +28,9 @@ class OrderServiceTest {
 
     @Mock
     lateinit var priceAdjustmentService: PriceAdjustmentService
+
+    @Mock
+    lateinit var orderStore: OrderStore
 
     @InjectMocks
     lateinit var service: OrderService
@@ -52,6 +57,8 @@ class OrderServiceTest {
         assertEquals(PricedItemOrder(1,"Apple",60,7),
             orderSummary.pricedItems[0])
         assertEquals(orderSummary.totalPriceInCents,420)
+
+        verify(orderStore).save(orderSummary)
     }
 
     @Test
@@ -64,6 +71,8 @@ class OrderServiceTest {
         assertEquals(PricedItemOrder(2,"Orange",25,2),
             orderSummary.pricedItems[1])
         assertEquals(orderSummary.totalPriceInCents,470)
+
+        verify(orderStore).save(orderSummary)
     }
 
     @Test
@@ -93,6 +102,38 @@ class OrderServiceTest {
             service.createUserOrder(tooLargeAnOrder)
         }
         assertEquals("Unable to find any item with the given Id: -1 (named: DoesNotExist)",ex.message)
+    }
+
+    @Test
+    fun getAllOrders() {
+        val allOrderList = listOf(
+            OrderSummary(UUID.randomUUID(),listOf(SEVEN_APPLES),emptyList(),420),
+            OrderSummary(UUID.randomUUID(),listOf(SEVEN_APPLES),emptyList(),420),
+            OrderSummary(UUID.randomUUID(),listOf(TWO_ORANGES),emptyList(),50),
+        )
+        `when`(orderStore.findAll()).thenReturn(allOrderList)
+
+        val result = service.getAllOrders()
+        assertEquals(3,result.size)
+        assertTrue(result.containsAll(allOrderList))
+    }
+
+    @Test
+    fun findOrdersById() {
+        val allOrderList = listOf(
+            OrderSummary(UUID.randomUUID(),listOf(SEVEN_APPLES),emptyList(),420),
+            OrderSummary(UUID.randomUUID(),listOf(TWO_ORANGES),emptyList(),50),
+        )
+        val firstUUID = allOrderList[0].orderId
+        val secondUUID = allOrderList[1].orderId
+        `when`(orderStore.findById(firstUUID)).thenReturn(allOrderList[0])
+        `when`(orderStore.findById(secondUUID)).thenReturn(allOrderList[1])
+
+        val resultSecondItem = service.getUserOrderByUUID(secondUUID)
+        val resultFirstItem = service.getUserOrderByUUID(firstUUID)
+
+        assertEquals(allOrderList[0],resultFirstItem)
+        assertEquals(allOrderList[1],resultSecondItem)
     }
 
     companion object {
