@@ -22,9 +22,6 @@ class OrderResourceTest {
     @Autowired
     private lateinit var mockMvc: MockMvc;
 
-    @Autowired
-    private lateinit var objectMapper: ObjectMapper
-
     companion object {
         const val CREATE_ENTRY_JSON ="""
             {
@@ -55,15 +52,23 @@ class OrderResourceTest {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.orderId").isNotEmpty)
             .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems.length()",`is`(2)))
+
             .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[0].itemId",`is`(1)))
             .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[0].itemName",`is`("Apple")))
             .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[0].unitPriceInCents",`is`(60)))
             .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[0].numUnits",`is`(7)))
+
             .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[1].itemId",`is`(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[1].itemName",`is`("Orange")))
             .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[1].unitPriceInCents",`is`(25)))
             .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[1].numUnits",`is`(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.totalPriceInCents",`is`(470)))
+
+            .andExpect(MockMvcResultMatchers.jsonPath("$.priceAdjustments.length()",`is`(1)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.priceAdjustments[0].summary",
+                `is`("Buy one Apple get one free! x 3")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.priceAdjustments[0].priceChangeInCents",
+                `is`(-180)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalPriceInCents",`is`(290)))
 
             // (For debugging if desired)
             .andDo(MockMvcResultHandlers.print())

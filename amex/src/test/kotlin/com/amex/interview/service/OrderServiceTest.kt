@@ -2,22 +2,35 @@ package com.amex.interview.service
 
 import com.amex.interview.exception.BadRequestException
 import com.amex.interview.model.InventoryItem
+import com.amex.interview.model.OrderSummary
 import com.amex.interview.model.PricedItemOrder
 import com.amex.interview.model.UserOrder
+import com.amex.interview.util.TestHelper.Companion.myAny
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anySet
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.mockito.Mockito.doAnswer
+import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.internal.matchers.InstanceOf.VarArgAware
+import org.mockito.internal.util.Primitives
 import org.springframework.boot.test.context.SpringBootTest
+import java.util.*
 
 @SpringBootTest
 class OrderServiceTest {
+
     @Mock
     lateinit var inventoryService:InventoryService
+
+    @Mock
+    lateinit var priceAdjustmentService: PriceAdjustmentService
 
     @InjectMocks
     lateinit var service: OrderService
@@ -28,7 +41,13 @@ class OrderServiceTest {
         `when`(inventoryService.lookupItemsByIds(anySet())).thenReturn(
             listOf(APPLE_INVENTORY, ORANGE_INVENTORY)
         )
+
+        //Alternately we could open OrderSummary and mock it...
+        val orderSummary = OrderSummary(UUID.randomUUID(),listOf(),listOf(),0)
+        doAnswer { it.arguments[0] }.`when`(priceAdjustmentService).applyCurrentDeals(myAny(OrderSummary::class.java,orderSummary))
+
     }
+
 
     @Test
     fun successfullyCreate7AppleOrder() {

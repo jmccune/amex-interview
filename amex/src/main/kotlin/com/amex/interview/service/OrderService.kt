@@ -8,9 +8,15 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class OrderService(val inventoryService: InventoryService) {
+class OrderService(val inventoryService: InventoryService,
+                   val priceAdjustmentService: PriceAdjustmentService) {
 
     fun createUserOrder(userOrder: UserOrder): OrderSummary {
+        val orderSummary=createUserOrderWithoutDeals(userOrder)
+        return priceAdjustmentService.applyCurrentDeals(orderSummary)
+    }
+
+    private fun createUserOrderWithoutDeals(userOrder: UserOrder): OrderSummary {
         if (userOrder.orderedItems.isEmpty()) {
             throw BadRequestException("Should not receive an empty order!")
         }
@@ -38,6 +44,6 @@ class OrderService(val inventoryService: InventoryService) {
 
         val totalPriceInCents = pricedOrderItems.map {it.numUnits * it.unitPriceInCents}.sum()
 
-        return OrderSummary(orderId = UUID.randomUUID(), pricedOrderItems, totalPriceInCents)
+        return OrderSummary(orderId = UUID.randomUUID(), pricedOrderItems, listOf(), totalPriceInCents)
     }
 }
