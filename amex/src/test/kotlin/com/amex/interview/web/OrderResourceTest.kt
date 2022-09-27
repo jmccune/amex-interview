@@ -55,9 +55,19 @@ class OrderResourceTest {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.orderId").isNotEmpty)
             .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems.length()",`is`(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[0].itemId",`is`(1)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[0].itemName",`is`("Apple")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[0].unitPriceInCents",`is`(60)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[0].numUnits",`is`(7)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[1].itemId",`is`(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[1].itemName",`is`("Orange")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[1].unitPriceInCents",`is`(25)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.pricedItems[1].numUnits",`is`(2)))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalPriceInCents",`is`(470)))
+
             // (For debugging if desired)
             .andDo(MockMvcResultHandlers.print())
     }
+
 
 }
