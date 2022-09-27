@@ -1,4 +1,4 @@
-package com.amex.interview.interview
+package com.amex.interview
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest

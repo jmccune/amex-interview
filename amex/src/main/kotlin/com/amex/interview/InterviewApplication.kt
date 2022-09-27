@@ -1,4 +1,4 @@
-package com.amex.interview.interview
+package com.amex.interview
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
